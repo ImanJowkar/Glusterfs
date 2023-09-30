@@ -112,9 +112,54 @@ ufw disable
 
 ```
 
-# add gluster-server node 
+
+
+
+
+
+GlusterFS supports several types of volumes, each designed to serve specific use cases and requirements. The primary GlusterFS volume types include:
+
+1. **Distributed Volume (Distribute):**
+   - **Description:** A distributed volume distributes data across multiple bricks (storage servers) without any redundancy. Each file is stored entirely on one brick. This type is ideal for maximizing storage capacity and distributing data across servers for load balancing.
+   - **Use Case:** When you need to aggregate storage across multiple servers without duplicating data for redundancy, often used for large-scale data storage.
+
+2. **Replicated Volume (Replicate):**
+   - **Description:** A replicated volume replicates data across multiple bricks to provide redundancy and fault tolerance. Data is stored on multiple bricks to ensure high availability, but it consumes more storage space compared to distributed volumes.
+   - **Use Case:** When data redundancy and fault tolerance are critical, such as for ensuring data durability and high availability.
+
+3. **Striped Volume (Stripe):**
+   - **Description:** A striped volume breaks files into smaller segments and distributes those segments across multiple bricks. This enhances performance by utilizing multiple disks simultaneously for read/write operations, but it does not provide data redundancy.
+   - **Use Case:** When you need to improve I/O performance by distributing data across multiple storage devices.
+
+4. **Distributed-Replicated Volume (Distribute-Replicate):**
+   - **Description:** A combination of distributed and replicated volumes. Data is first distributed across servers and then replicated within each server to provide both scalability and redundancy.
+   - **Use Case:** When you want to combine the benefits of distribution for capacity scaling with replication for data protection.
+
+5. **Distributed-Striped Volume (Distribute-Stripe):**
+   - **Description:** A combination of distributed and striped volumes. Data is distributed across multiple servers and striped across storage devices within each server. This offers both capacity scaling and improved performance.
+   - **Use Case:** When you need to scale both capacity and performance by combining distribution and striping.
+
+6. **Distributed-Replicated-Striped Volume (Distribute-Replicate-Stripe):**
+   - **Description:** This is a combination of all three volume types: distributed, replicated, and striped. It distributes data across servers, replicates it within servers, and stripes it across storage devices within each server. This provides high availability, scalability, and performance.
+   - **Use Case:** In complex scenarios where you require a balance of high availability, scalability, and performance.
+
+7. **Arbiter Volume (Arbiter):**
+   - **Description:** An arbiter volume is used in conjunction with replicated volumes to reduce storage overhead. Instead of replicating data to a full replica node, it replicates only metadata and stores a smaller arbiter brick to decide which replica node contains the most up-to-date data.
+   - **Use Case:** When you want to minimize storage overhead in replicated volumes while maintaining data integrity.
+
+8. **Thinly Provisioned Volume (Thin):**
+   - **Description:** Thin provisioning allows you to allocate storage space dynamically as needed, rather than pre-allocating all storage upfront. It helps save space and allows for more flexible storage allocation.
+   - **Use Case:** When you want to efficiently use available storage resources and allocate space on-demand.
+
+Each of these GlusterFS volume types has its own strengths and trade-offs, so choosing the appropriate volume type depends on your specific use case, performance requirements, fault tolerance needs, and available storage resources.
+
+
+
+# replicated
 ```
-# run on gluster0
+
+
+
 
 gluster peer probe gluster2
 
@@ -139,13 +184,48 @@ gluster volume status
 gluster volume stop volume1
 gluster volume delete volume1
 
-```
 
 
 # run on gluster clinet
-```
+
 sudo apt install glusterfs-client
 sudo mkdir /mnt/gluster-db
 sudo mount -t glusterfs gluster1:volume1 /mnt/gluster-db/
 
 ```
+
+
+
+# Distributed
+```
+
+# run on gluster server
+
+gluster volume create volume2 gluster0.example.com:/mnt/sdb1 gluster1.example.com:/mnt/sdb1 gluster2.example.com:/mnt/sdb1 force
+
+gluster volume info
+gluster volume list
+gluster volume status
+gluster volume start volume2
+
+
+
+
+# Run on gluster nodes
+mount -t glusterfs gluster0:volume2 /mnt/gluster-db/
+
+# now run the `df -Th` to see the storage size 
+
+
+
+
+# delete the volume
+gluster volume stop volume2
+gluster volume delete volume2
+```
+
+
+
+
+
+
