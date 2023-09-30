@@ -110,6 +110,12 @@ by the way, I don't enable firewall
 # run on all gluster server 
 ufw disable
 
+
+
+gluster peer probe gluster2
+
+gluster peer status
+
 ```
 
 
@@ -159,11 +165,6 @@ Each of these GlusterFS volume types has its own strengths and trade-offs, so ch
 ```
 
 
-
-
-gluster peer probe gluster2
-
-gluster peer status
 
 gluster volume list
 
@@ -215,7 +216,8 @@ gluster volume start volume2
 mount -t glusterfs gluster0:volume2 /mnt/gluster-db/
 
 # now run the `df -Th` to see the storage size 
-
+df -TH
+df -Ph .
 
 
 
@@ -226,6 +228,53 @@ gluster volume delete volume2
 
 
 
+
+
+
+
+
+# Additional command 
+
+```
+gluster pool list
+
+
+```
+
+
+## detach a node 
+```
+gluster peer list
+gluster peer detach gluster2
+
+```
+
+
+# Enable quota
+
+```
+
+gluster volume quota <volume-name> list
+gluster volume quota <volume-name> enable
+gluster volume quota <volume-name> list
+
+
+gluster volume quota <volume-name> limit-usage / 10MB
+gluster volume quota <volume-name> list
+
+
+# on client run 
+df -TH
+
+
+
+dd if=/dev/urandom of=test-file bs=6MB count=1
+dd if=/dev/urandom of=test-file bs=6MB count=4
+
+
+gluster volume quota <volume-name> disable
+
+```
 
 
 
